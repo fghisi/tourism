@@ -1,28 +1,58 @@
+import os
+import importlib
+
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool, MetaData
 
 from alembic import context
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+from model import Base
+
+
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
 fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-target_metadata = None
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+def combine_metadata(module_list):
+    for module in module_list:
+        m = MetaData()
+        for t in load_class(module).metadata.tables.values():
+            t.tometadata(m)
+    return m
+
+
+def load_class(module):
+    return getattr(
+        importlib.import_module(module), 
+        'Base'
+    )
+
+
+def get_module_list():
+    rootdir = os.getcwd()
+    modules = []
+
+    for dirname, subdirs, files in os.walk(rootdir):
+        if (dirname.find('/model') >= 0 or dirname.find('\model') >= 0) \
+                and (dirname.find('/__pycache__') < 0 or dirname.find('\__pycache__') < 0):
+
+            for f in files:
+                if not f.find('~') >= 0 and not f.find('__init__') >= 0 \
+                        and not f.endswith('swp') and not f.endswith('pyc'):
+
+                    modules = dirname.replace(os.getcwd(), '').split('/')
+                    modules.pop(0)
+                    module = '.'.join(modules)
+                    module = "%s.%s" % (module, f.replace('.py', ''))
+
+                    if module not in modules:
+                        modules.append(module)
+    return modules
+
+module_list = get_module_list()
+target_metadata = combine_metadata(module_list)
 
 
 def run_migrations_online():

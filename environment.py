@@ -6,7 +6,7 @@ def get_host() -> str:
 
 
 def get_port() -> int:
-    return int(os.getenv('PGPORT'))
+    return os.getenv('PGPORT')
 
 
 def get_user() -> str:
