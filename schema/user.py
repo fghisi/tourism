@@ -1,6 +1,6 @@
 from schema import BaseSchema
 
 
-class User(BaseSchema):
+class UserSchema(BaseSchema):
     email: str
     password: str
