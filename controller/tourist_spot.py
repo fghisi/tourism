@@ -6,10 +6,10 @@ from starlette.status import HTTP_201_CREATED, HTTP_401_UNAUTHORIZED
 from database.config import get_session
 
 from schema import ObjectCreate
-from schema.category import CategorySchema
+from schema.tourist_spot import TouristSpotSchema
 
 from service.authentication import JWT, JWTExceptionExpired
-from service.category import CategoryService
+from service.tourist_spot import TouristSpotService
 
 from controller.authentication import api_key_authorization
 
@@ -17,12 +17,12 @@ router = APIRouter()
 
 
 @router.post(
-    "/category",
+    "/touristSpot",
     status_code=HTTP_201_CREATED,
     response_model=ObjectCreate
 )
-def post_category(
-    category_schema: CategorySchema = Body(..., embed=True, alias="category"),
+def post_tourist_spot(
+    tourist_spot_schema: TouristSpotSchema = Body(..., embed=True, alias="turist_spot"),
     session: Session = Depends(get_session),
     authorization: str = Depends(api_key_authorization), 
 ) -> ObjectCreate:
@@ -34,17 +34,17 @@ def post_category(
             detail='Recurso não autorizado'
         )
 
-    category_service = CategoryService(session)
+    tourist_spot_service = TouristSpotService(session)
 
-    if category_service.get_by_name(category_schema.name):
+    if tourist_spot_service.get_by_name(tourist_spot_schema.name):
         raise HTTPException(
             status_code=HTTP_401_UNAUTHORIZED,
-            detail='Categoria já criada'
+            detail='Ponto turistico já criado'
         )
 
-    category = category_service.insert(category_schema.dict())
+    tourist_spot = tourist_spot_service.insert(tourist_spot_schema.dict())
 
     return ObjectCreate(
-        message='Categoria criada com sucesso',
-        object_id=category.id
+        message='Ponto turistico criado com sucesso',
+        object_id=tourist_spot.id
     )
