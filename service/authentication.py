@@ -16,10 +16,10 @@ class JWT:
             'secret', 
             algorithm='HS256'
         ).decode('utf-8')
-        
-    def validate(self, jwtcd):
+
+    def validate(self, token: str):
         try:
-            return jwt.decode(jwtcd, 'secret')
+            return jwt.decode(token, 'secret')
         except ExpiredSignatureError:
             raise JWTExceptionExpired
         
@@ -32,7 +32,7 @@ class AuthenticationService:
     def __init__(self, session: Session):
         self.session = session
 
-    def _validate(self, email: str, password: str) -> bool:
+    def _authenticate(self, email: str, password: str) -> bool:
         user = self.session.query(
             User
         ).filter(User.email == email)\
@@ -44,7 +44,7 @@ class AuthenticationService:
         return True
 
     def get_token(self, email: str, password: str) -> JWT:
-        if self._validate(email, password):
+        if self._authenticate(email, password):
             return JWT().get(
                 {'email': email}
             )

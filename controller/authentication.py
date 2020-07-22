@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi.security.api_key import APIKeyHeader
 from sqlalchemy.orm import Session
 
 from starlette.status import (
@@ -76,3 +77,6 @@ def login(
         'message': 'Login efetuado',
         'token': token
     }
+
+
+api_key_authorization = APIKeyHeader(name='authorization')
