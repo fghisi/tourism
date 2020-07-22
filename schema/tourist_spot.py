@@ -1,3 +1,5 @@
+from typing import List
+
 from schema import BaseSchema
 from schema.category import CategorySchema
 
@@ -12,3 +14,8 @@ class TouristSpotSchema(BaseSchema):
     longitude: str
     image: str 
     category: CategoryWithIdSchema
+
+
+class TouristSpotPagedSchema(BaseSchema):
+    items: List[TouristSpotSchema]
+    total: int

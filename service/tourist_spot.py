@@ -18,6 +18,16 @@ class TouristSpotService:
         self.session.refresh(tourist_spot_loaded)
         return tourist_spot_loaded
 
+    def get(self, offset: int, limit: int, name: str):
+        query = self.session.query(
+            TouristSpot
+        )
+        
+        if name:
+            query = query.filter(TouristSpot.name == name)
+        
+        return query.offset(offset).limit(limit).all()
+
     def get_by_name(self, name: str) -> TouristSpot:
         return self.session.query(
             TouristSpot

@@ -1,12 +1,16 @@
 from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from starlette.status import HTTP_201_CREATED, HTTP_401_UNAUTHORIZED
+from starlette.status import (
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_401_UNAUTHORIZED
+)
 
 from database.config import get_session
 
 from schema import ObjectCreate
-from schema.tourist_spot import TouristSpotSchema
+from schema.tourist_spot import TouristSpotSchema, TouristSpotPagedSchema
 
 from service.authentication import JWT, JWTExceptionExpired
 from service.tourist_spot import TouristSpotService
@@ -47,4 +51,32 @@ def post_tourist_spot(
     return ObjectCreate(
         message='Ponto turistico criado com sucesso',
         object_id=tourist_spot.id
+    )
+
+@router.get(
+    "/touristSpot",
+    status_code=HTTP_200_OK,
+    response_model=TouristSpotPagedSchema
+)
+def get_tourist_spot(
+    offset: int = 0, 
+    limit: int = 100, 
+    name: str = None,
+    session: Session = Depends(get_session),
+    authorization: str = Depends(api_key_authorization), 
+) -> TouristSpotPagedSchema:
+    try:
+        JWT().validate(authorization)
+    except JWTExceptionExpired:
+        raise HTTPException(
+            status_code=HTTP_401_UNAUTHORIZED,
+            detail='Recurso não autorizado'
+        )
+
+    tourist_spot_service = TouristSpotService(session)
+    tourist_spots = tourist_spot_service.get(offset, limit, name)
+    
+    return TouristSpotPagedSchema(
+        items=tourist_spots,
+        total=len(tourist_spots)
     )
