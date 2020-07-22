@@ -16,6 +16,15 @@ class TouristSpotSchema(BaseSchema):
     category: CategoryWithIdSchema
 
 
+class TouristSpotWithIdSchema(TouristSpotSchema):
+    id: int
+
+
 class TouristSpotPagedSchema(BaseSchema):
-    items: List[TouristSpotSchema]
+    items: List[TouristSpotWithIdSchema]
+    total: int
+
+
+class FavoriteTouristSpotPagedSchema(BaseSchema):
+    items: List[TouristSpotWithIdSchema]
     total: int

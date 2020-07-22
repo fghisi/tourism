@@ -1,6 +1,9 @@
+from typing import List
 from sqlalchemy.orm import Session
 
 from model.user import User
+from model.tourist_spot import TouristSpot
+from model.favorite_tourist_spot import FavoriteTouristSpot
 
 
 class UserService:
@@ -19,3 +22,14 @@ class UserService:
         return self.session.query(
             User
         ).filter(User.email == email).first()
+
+    def get_favorite_tourist_spots(self,
+        offset: int,
+        limit: int,
+        id: int
+    ) -> List[TouristSpot]:
+        return self.session.query(
+            TouristSpot
+        ).join(FavoriteTouristSpot.tourist_spots)\
+            .filter(FavoriteTouristSpot.user_id == id)\
+            .offset(offset).limit(limit).all()

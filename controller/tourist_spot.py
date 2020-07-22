@@ -86,7 +86,7 @@ def get_tourist_spot(
     )
 
 
-@router.get(
+@router.post(
     "/touristSpot/{id}/favorite",
     status_code=HTTP_200_OK,
     response_model=Success
