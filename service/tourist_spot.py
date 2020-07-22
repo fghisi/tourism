@@ -32,3 +32,8 @@ class TouristSpotService:
         return self.session.query(
             TouristSpot
         ).filter(TouristSpot.name == name).first()
+
+    def get_by_id(self, id: int) -> TouristSpot:
+        return self.session.query(
+            TouristSpot
+        ).filter_by(id=id).one()

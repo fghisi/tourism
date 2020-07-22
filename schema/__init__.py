@@ -9,3 +9,7 @@ class BaseSchema(BaseModel):
 class ObjectCreate(BaseModel):
     message: str
     object_id: int
+
+
+class Success(BaseModel):
+    message: str
