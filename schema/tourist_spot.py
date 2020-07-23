@@ -28,3 +28,7 @@ class TouristSpotPagedSchema(BaseSchema):
 class FavoriteTouristSpotPagedSchema(BaseSchema):
     items: List[TouristSpotWithIdSchema]
     total: int
+
+
+class ImageSchema(BaseSchema):
+    image: str

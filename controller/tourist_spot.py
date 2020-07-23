@@ -12,7 +12,7 @@ from starlette.status import (
 from database.config import get_session
 
 from schema import ObjectCreate, Success
-from schema.tourist_spot import TouristSpotSchema, TouristSpotPagedSchema
+from schema.tourist_spot import TouristSpotSchema, TouristSpotPagedSchema, ImageSchema
 
 from service.authentication import JWT, JWTExceptionExpired
 from service.tourist_spot import TouristSpotService
@@ -125,4 +125,30 @@ def post_favorite_tourist_spot(
 
     return Success(
         message='Ponto turistico favoritado com sucesso'
+    )
+
+@router.put(
+    "/touristSpot/{id}/image",
+    status_code=HTTP_200_OK,
+    response_model=Success
+)
+def put_tourist_spot_image(
+    id: int,
+    image_schema: ImageSchema = Body(..., embed=True, alias="image"),
+    session: Session = Depends(get_session),
+    authorization: str = Depends(api_key_authorization), 
+) -> Success:
+    try:
+        JWT().validate(authorization)
+    except JWTExceptionExpired:
+        raise HTTPException(
+            status_code=HTTP_401_UNAUTHORIZED,
+            detail='Recurso não autorizado'
+        )
+
+    tourist_spot_service = TouristSpotService(session)
+    tourist_spot_service.update_image(id, image_schema.image)
+
+    return Success(
+        message='Imagem atualizada com sucess favoritado com sucesso'
     )

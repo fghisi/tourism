@@ -18,6 +18,13 @@ class TouristSpotService:
         self.session.refresh(tourist_spot_loaded)
         return tourist_spot_loaded
 
+    def update_image(self, id: int, image: str) -> None:
+        tourist_spot = self.get_by_id(id)
+        tourist_spot.image = image
+
+        self.session.add(tourist_spot)
+        self.session.commit()
+
     def get(self, offset: int, limit: int, name: str):
         query = self.session.query(
             TouristSpot
