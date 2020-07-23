@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.exc import NoResultFound
 
 from starlette.status import (
     HTTP_200_OK,
-    HTTP_401_UNAUTHORIZED
+    HTTP_401_UNAUTHORIZED,
+    HTTP_404_NOT_FOUND
 )
 
 from database.config import get_session
@@ -13,6 +15,7 @@ from schema.tourist_spot import FavoriteTouristSpotPagedSchema
 
 from service.authentication import JWT, JWTExceptionExpired
 from service.user import UserService
+from service.favorite_tourist_spot import FavoriteTouristSpotService
 
 from controller.authentication import api_key_authorization
 
@@ -55,17 +58,33 @@ def get_favorite_tourist_spot(
     response_model=Success
 )
 def delete_favorite_tourist_spot(
-    tourist_spot_id: int = 100, 
+    tourist_spot_id: int, 
     session: Session = Depends(get_session),
     authorization: str = Depends(api_key_authorization), 
 ) -> Success:
     try:
-        JWT().validate(authorization)
+        token = JWT().validate(authorization)
     except JWTExceptionExpired:
         raise HTTPException(
             status_code=HTTP_401_UNAUTHORIZED,
             detail='Recurso não autorizado'
         )
+
+    user_service = UserService(session)
+    user = user_service.get_by_email(token['email'])
+
+    try:
+        favorite = user_service.get_favorite_tourist_spot(
+            user.id,
+            tourist_spot_id
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=HTTP_404_NOT_FOUND,
+            detail='Ponto turistico favorito não encontrado'
+        )
+
+    FavoriteTouristSpotService(session).delete(favorite)
 
     return Success(
         message='Ponto turistico favorito removido com sucesso'

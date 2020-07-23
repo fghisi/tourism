@@ -14,3 +14,7 @@ class FavoriteTouristSpotService:
         self.session.commit()
         self.session.refresh(favorite_loaded)
         return favorite_loaded
+
+    def delete(self, favorite: FavoriteTouristSpot) -> None:
+        self.session.delete(favorite)
+        self.session.commit()

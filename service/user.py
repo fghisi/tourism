@@ -33,3 +33,13 @@ class UserService:
         ).join(FavoriteTouristSpot.tourist_spots)\
             .filter(FavoriteTouristSpot.user_id == id)\
             .offset(offset).limit(limit).all()
+
+    def get_favorite_tourist_spot(self, 
+        id: int, 
+        tourist_spot_id: int
+    ) -> FavoriteTouristSpot:
+        return self.session.query(
+            FavoriteTouristSpot
+        ).filter(FavoriteTouristSpot.user_id == id)\
+            .filter(FavoriteTouristSpot.tourist_spot_id == tourist_spot_id).one()
+            
